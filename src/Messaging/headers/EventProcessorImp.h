@@ -27,6 +27,7 @@
 #include "EventProcessor.h"
 #include "MultiMessageQueue.h"
 #include "MessageMacros.h"
+#include "Message.h"
 
 
 // forward definition of all messages
@@ -74,7 +75,7 @@ class EventProcessorImp {
         // data for debuging purposes
         bool debug;
         const char *dbgMsg;
-
+        bool registerMsg = true;
         // Flag to check while spinning
         std::atomic_flag spin_flag;
 
@@ -103,6 +104,8 @@ class EventProcessorImp {
         // If not overridden, the default message handler will simply fail.
         void RegisterDefaultMessageProcessor( msgProcessor Proc );
 
+        void RegisterMessagePriority(off_t Type, int Priority=1);
+
         // set the maximum number of threads that an EventProessor supports
         // this does not start that many threads, it just sets the limit
         void SetMaxThreads(int max) {
@@ -120,11 +123,15 @@ class EventProcessorImp {
         // everybody should use ForkAndSpin instead of Spin to start a thread running the Spin()
         virtual void Spin(void);
 
+
+
         // Makes the event processor stop spinning after the current message.
         void StopSpinning(void);
 
         // Method for an event processor to get an interface object for itself.
         EventProcessor Self(void);
+
+        void RegisterMessagesNishant();
 
     public:
         // constructor
@@ -153,6 +160,9 @@ class EventProcessorImp {
 
         // method to commit suicide. This should be called if the event processor wants to kill itself
         void Seppuku();
+
+        //dispatch method to route message to handler functions
+        virtual void _dispatch(Message &__msg);
 
         // destructor
         virtual ~EventProcessorImp();

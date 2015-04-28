@@ -39,15 +39,19 @@ EventProcessorImp::EventProcessorImp(bool _debug, const char *_dbgMsg) :
     pthread_cond_init(&died, NULL);
 
     dead = false;
-
+    
+    //_dispatch includes these functions
+    /*
     msgProcessor dieProc = [](EventProcessorImp& evProc, Message& msg) {
         evProc.StopSpinning();
     };
 
     RegisterMessageProcessor( DieMessage::type, dieProc, 0 );
-
+    */
+    //RegisterMessagesNishant();  
     // set the spin_flag
     spin_flag.test_and_set(std::memory_order_relaxed);
+
 }
 
 EventProcessorImp::~EventProcessorImp() {
@@ -84,6 +88,10 @@ EventProcessorImp::~EventProcessorImp() {
     }
 }
 
+void EventProcessorImp::RegisterMessagesNishant(){
+    Message* msg = new RegisterMessage();
+    this->_dispatch(*msg);
+}
 void EventProcessorImp::RegisterMessageProcessor(off_t Type, msgProcessor Proc, int Priority) {
     // put the method in
     processorsMap[Type] = Proc;
@@ -98,18 +106,31 @@ void EventProcessorImp::PreStart(void) {
     // Do nothing
 }
 
+void EventProcessorImp::RegisterMessagePriority(off_t Type, int Priority) {
+    
+    msgQueue.AddMessageType(Type, Priority);
+}
+
+void EventProcessorImp::_dispatch(Message &msg) {
+    // Do nothing
+    cout<<"super"<<endl;
+}
+
 void EventProcessorImp::Spin() {
     // ensure we die instanly when somebody calls cancel
     pthread_setcanceltype(PTHREAD_CANCEL_ENABLE, NULL);
     pthread_setcancelstate(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
 
     PreStart();
-
+    
     // repeat forever
     while (spin_flag.test_and_set(std::memory_order_relaxed)) {
         // get new message from the queue (blocks until a message is available)
         Message& cMessage = msgQueue.RemoveMessage();
 
+        //_dispatch routes the message to the correct handler functions 
+        // thus ProcessorMap is not required
+        /*
         ProcessorMap::iterator cur = processorsMap.find(cMessage.Type());
         // we cannot possibly get a message that we do not suppoprt
 
@@ -117,20 +138,26 @@ void EventProcessorImp::Spin() {
             // get the correct processor
             msgProcessor proc = cur->second;
             // call the processor
-            (proc)(*this, cMessage);
+            /(proc)(*this, cMessage);
         }
         else {
             // Don't have a processor registered for this message type, use the
             // default handler.
-            (defaultProcessor)(*this, cMessage);
+            (defaultProcessor)(*this, cMessage);    
         }
+        */
 
+        this->_dispatch(cMessage);
         delete (&cMessage);
     }
 }
 
 void EventProcessorImp::StopSpinning(void) {
     spin_flag.clear(std::memory_order_relaxed);
+    pthread_mutex_lock(&mutex);
+    dead = true;
+    pthread_cond_broadcast(&died);
+    pthread_mutex_unlock(&mutex);
 }
 
 void EventProcessorImp::ProcessMessage(Message& msg) {
@@ -150,13 +177,15 @@ void EventProcessorImp::Seppuku() {
     if (debug) {
         cout << "EventProcessor " << dbgMsg << " is SEPPUKU." << endl;
     }
-
+    
+    
     pthread_mutex_lock(&mutex);
     for(unsigned int i = 0; i < vThreads.size(); i++) {
         //kill the threads
-        pthread_cancel(*vThreads[i]);
+       pthread_cancel(*vThreads[i]);
     }
 
+    //should we shift this in the begining of the function so that new msg will not be processed
     //set the dead variable to signal we are dead
     dead = true;
 
@@ -177,6 +206,8 @@ void* EventProcessorImp::ForkAndSpinThread(void* aux) {
     //pthread_exit(NULL);
     return NULL;
 }
+
+
 
 bool EventProcessorImp::ForkAndSpin(int node) {
     //are we dead? can we even start a thread?
@@ -223,6 +254,10 @@ bool EventProcessorImp::ForkAndSpin(int node) {
         pthread_setaffinity_np(threadPtr, MAX_CPU_SETS, cpus);
     }
 #endif // USE_NUMA
+        if(registerMsg) {
+           RegisterMessagesNishant();
+           
+        }
 
     return true;
 }

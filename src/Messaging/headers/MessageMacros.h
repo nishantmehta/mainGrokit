@@ -56,5 +56,38 @@ void ClassName::MessageHandler(EventProcessorImp &_obj, Message &_msg){\
     MESSAGE_CLEANUP; \
 }
 
+#define ACTOR_HANDLE                                                        \
+virtual void _dispatch(Message &__msg) {
+
+#define HANDLER(MESSAGE_TYPE,MESSAGE_HANDLER, PRIORITY)                     \
+    if( registerMsg) {                                                      \
+        RegisterMessagePriority(MESSAGE_TYPE::type, PRIORITY);              \
+    }                                                                       \
+    if( MESSAGE_TYPE::type == __msg.Type()) {                               \
+        MESSAGE_CONVERT(__msg, temp, MESSAGE_TYPE)                          \
+        MESSAGE_HANDLER(temp);                                              \
+        return;}                                                            
+
+#define  END_HANDLE_WITH_DEFAULT_HANDLER(DEFAULT_HANDLER)                   \
+    if(registerMsg) {                                                       \
+        RegisterMessagePriority(DieMessage::type, 0);                       \
+    }                                                                       \
+    if( DieMessage::type == __msg.Type() && !registerMsg) {                 \
+        StopSpinning();                                                     \
+        return;                                                             \
+    } else {registerMsg = false;}                                           \
+    DEFAULT_HANDLER(__msg);                                                 \
+}
+
+#define  END_HANDLE                                                         \
+    if(registerMsg) {                                                       \
+        RegisterMessagePriority(DieMessage::type, 0);                       \
+    }                                                                       \
+    if( DieMessage::type == __msg.Type() && !registerMsg) {                 \
+        StopSpinning();                                                     \
+        return;                                                             \
+    } else {registerMsg = false; return;}                                   \
+    DefaultMessageHandler(*this, __msg);                                    \
+}
 
 #endif
