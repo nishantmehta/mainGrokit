@@ -25,6 +25,9 @@
 #include "Message.h"
 #include "PerfCounter.h" // perfrormance counters
 #include "Timer.h"
+#include "EEExternMessages.h"
+#include "WorkerMessages.h"
+#include "Diagnose.h"
 
 class CPUWorker;
 

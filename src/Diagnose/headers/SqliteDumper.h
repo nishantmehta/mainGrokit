@@ -21,6 +21,7 @@
 #include "EventProcessor.h"
 #include "EventProcessorImp.h"
 #include "Message.h"
+#include "Diagnose.h"
 
 //Implementor class for SqliteDumper
 class SqliteDumperImp : public EventProcessorImp {

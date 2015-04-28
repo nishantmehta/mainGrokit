@@ -21,6 +21,7 @@
 #include "EventProcessorImp.h"
 #include "RemoteAddress.h"
 #include "CommConfig.h"
+#include "RemoteMessage.h"
 
 #include <string>
 #include <memory>
@@ -73,6 +74,7 @@ class CommSenderImp : public EventProcessorImp {
         bool IsActive() {return isActive;}
         
         void ProcessRemoteMessage(RemoteMessage &msg);
+
         ACTOR_HANDLE
             // message handler for all remote messages
             HANDLER(RemoteMessage, ProcessRemoteMessage, 1 /*priority*/)

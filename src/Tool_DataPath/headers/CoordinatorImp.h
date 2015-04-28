@@ -24,6 +24,8 @@
 #include "Constants.h"
 #include "TransMessages.h"
 #include "Tasks.h"
+#include "DPMessages.h"
+#include "CLMessages.h"
 
 
 /** This coordinator is designed to go together with the Translato

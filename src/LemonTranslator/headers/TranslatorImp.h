@@ -20,6 +20,7 @@
 #include "EventProcessorImp.h"
 #include "MessageMacros.h"
 #include "LemonTranslator.h"
+#include "TransMessages.h"
 #include <antlr3.h>
 
 /* Translator object that gets instructions in the high level language

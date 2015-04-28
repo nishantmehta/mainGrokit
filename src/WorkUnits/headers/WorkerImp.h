@@ -21,6 +21,7 @@
 #include "MessageMacros.h"
 #include "DistributedQueue.h"
 #include "DistributedQueue.cc"
+#include "WorkMessages.h"
 
 //forward definition
 class Worker;

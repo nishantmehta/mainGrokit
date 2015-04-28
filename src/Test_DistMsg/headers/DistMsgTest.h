@@ -12,6 +12,7 @@
 #include "ProxyEventProcessor.h"
 #include "MessageMacros.h"
 #include "CommunicationFramework.h"
+#include "TestMessages.h"
 
 class TestSenderImp : public EventGeneratorImp {
     private:
