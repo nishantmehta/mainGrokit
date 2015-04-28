@@ -42,8 +42,6 @@ CommSenderImp::CommSenderImp(const HostAddress & _remoteMachine,
     COMM_LOG_MSG("Starting Client CommSender for address %s", addr.str().c_str());
 
     isActive = true;
-
-    RegisterMessageProcessor(RemoteMessage::type, &ProcessRemoteMessage, 1 /*priority*/);
 }
 
 CommSenderImp::CommSenderImp(const HostAddress & _remoteMachine,
@@ -59,8 +57,6 @@ CommSenderImp::CommSenderImp(const HostAddress & _remoteMachine,
     COMM_LOG_MSG("Starting Server CommSender for address %s", addr.str().c_str());
 
     isActive = true;
-
-    RegisterMessageProcessor(RemoteMessage::type, &ProcessRemoteMessage, 1 /*priority*/);
 }
 
 void CommSenderImp :: SendMessage( const std::string & data ) {
@@ -107,7 +103,7 @@ void CommSenderImp :: SendMessage( const std::string & data ) {
     }
 }
 
-MESSAGE_HANDLER_DEFINITION_BEGIN(CommSenderImp, ProcessRemoteMessage, RemoteMessage){
+CommSenderImp::ProcessRemoteMessage(RemoteMessage &msg){
 
     // Serialize the remote message.
     Json::Value toSend;
@@ -121,7 +117,7 @@ MESSAGE_HANDLER_DEFINITION_BEGIN(CommSenderImp, ProcessRemoteMessage, RemoteMess
     evProc.SendMessage(sData);
 
 
-}MESSAGE_HANDLER_DEFINITION_END
+}
 
 CommSenderImp::~CommSenderImp() {
     // close connection

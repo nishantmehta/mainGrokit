@@ -81,24 +81,27 @@ class ChunkReaderWriterImp : public EventProcessorImp {
           return ret;
         }
 
-        //////////////////////////
-        // MESSAGE HANDLERS
 
-        // this message is received when the HD threads finish a chunk
-        MESSAGE_HANDLER_DECLARATION(ChunkRWJobDone);
+    void ChunkRWJobDone(MegaJobFinished &msg);
+    void ReadChunk(ChunkRead &msg);
+    void WriteChunk(ChunkWrite &msg);
+    void FlushFunc(Flush &msg);
+    void DeleteContentFunc(DeleteContent &msg);
+    void ClusterUpdateFunc(ChunkClusterUpdate &msg);
 
-        // this message is received when the upper part needs a chunk read
-        MESSAGE_HANDLER_DECLARATION(ReadChunk);
-
-        // this message is received when the upper part whants the columns in a chunk writen
-        // this is a low level interface; a higher level interface might be supported in the future
-        MESSAGE_HANDLER_DECLARATION(WriteChunk);
-
-        MESSAGE_HANDLER_DECLARATION(FlushFunc);
-
-        MESSAGE_HANDLER_DECLARATION(DeleteContentFunc);
-
-        MESSAGE_HANDLER_DECLARATION(ClusterUpdateFunc);
+        //priority for processing read chunks is higher than accepting new chunks
+        ACTOR_HANDLE
+          // this message is received when the HD threads finish a chunk
+          HANDLER(MegaJobFinished, ChunkRWJobDone, 3)
+          // this message is received when the upper part needs a chunk read
+          HANDLER(ChunkRead, ReadChunk, 2)
+          // this message is received when the upper part whants the columns in a chunk writen
+          // this is a low level interface; a higher level interface might be supported in the future
+          HANDLER(ChunkWrite, WriteChunk, 1)
+          HANDLER(Flush, FlushFunc, 4)
+          HANDLER(DeleteContent, DeleteContentFunc, 5)
+          HANDLER(ChunkClusterUpdate, ClusterUpdateFunc, 6)
+        END_HANDLE
 };
 
 

@@ -20,7 +20,6 @@
 #include <utility>
 #include <assert.h>
 #include <stdlib.h>
-#include <iostream>
 #include <libgen.h>
 #include <antlr3.h>
 
@@ -69,9 +68,7 @@ TranslatorImp::TranslatorImp(EventProcessor& _coordinator, bool batchMode) :
     }
 
 
-    // register the messages we can receive
-    RegisterMessageProcessor(TranslationMessage::type, &Translate, 1);
-    RegisterMessageProcessor(DeleteQueriesMessage::type, &DeleteQueries, 2);
+    
 
 }
 
@@ -82,8 +79,7 @@ TranslatorImp::TranslatorImp(EventProcessor& _coordinator, bool batchMode) :
         read the catalog and initialized the attribute manager from it
 */
 
-MESSAGE_HANDLER_DEFINITION_BEGIN(TranslatorImp, Translate,
-                 TranslationMessage){
+TranslatorImp::Translate(TranslationMessage &msg) {
 
     // get the directory name based on the file passed to the translator
     char param[1000];
@@ -137,11 +133,10 @@ MESSAGE_HANDLER_DEFINITION_BEGIN(TranslatorImp, Translate,
         // no plan yet
     }
 
-}MESSAGE_HANDLER_DEFINITION_END
+}
 
 
-MESSAGE_HANDLER_DEFINITION_BEGIN(TranslatorImp, DeleteQueries,
-                 DeleteQueriesMessage){
+TranslatorImp::DeleteQueries(DeleteQueriesMessage &msg) {
 
     // we just need to tell the LemonTranslator to drop queries
     QueryIDSet queries = msg.queries;
@@ -149,7 +144,7 @@ MESSAGE_HANDLER_DEFINITION_BEGIN(TranslatorImp, DeleteQueries,
         evProc.lTrans.DeleteQuery(queries.GetFirst());
     }
 
-}MESSAGE_HANDLER_DEFINITION_END
+}
 
 
  /* The next two functions have a lot of overlap. Since the Antlr code

@@ -25,8 +25,6 @@ SqliteDumperImp::SqliteDumperImp(void)
 : EventProcessorImp(true, "SqliteDumper") // comment to remove debug
 #endif
 {
-	// register the DumpRequestMessage
-	RegisterMessageProcessor(DumpRequestMessage::type, &DumpRequest, 1 /*priority*/);
 
 	//open database connection.
 	//TODO: Check if database is blocked
@@ -124,6 +122,6 @@ void SqliteDumperImp::DumpToSQLite(MessageContainer& _msgContainer, bool killMe)
 }
 
 // DumpRequest handler definition
-MESSAGE_HANDLER_DEFINITION_BEGIN(SqliteDumperImp, DumpRequest, DumpRequestMessage){
+SqliteDumperImp::DumpRequest(DumpRequestMessage &msg) {
 	evProc.DumpToSQLite(msg.msgContainer, msg.killMe);
-}MESSAGE_HANDLER_DEFINITION_END
+}

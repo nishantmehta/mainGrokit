@@ -71,9 +71,12 @@ class CommSenderImp : public EventProcessorImp {
 
         //check to see if the sender is active (it has a connection to the remote host)
         bool IsActive() {return isActive;}
-
-        // message handler for all remote messages
-        MESSAGE_HANDLER_DECLARATION(ProcessRemoteMessage);
+        
+        void ProcessRemoteMessage(RemoteMessage &msg);
+        ACTOR_HANDLE
+            // message handler for all remote messages
+            HANDLER(RemoteMessage, ProcessRemoteMessage, 1 /*priority*/)
+        END_HANDLE
 };
 
 class CommSender : public EventProcessor {

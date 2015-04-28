@@ -190,11 +190,16 @@ class DiskArrayImp : public EventProcessorImp {
         off_t NumPagesProcessed(void);
         off_t NumPagesDelta(void); // since last call
 
-        // this message is received when the top wants an operation performed
-        MESSAGE_HANDLER_DECLARATION(DoDiskOperation);
+        void ProcessDiskStatistics(DiskStatistics &msg);
+        void DoDiskOperation(DiskOperation &msg);
 
-        // this mesage is sent by the HDThreads with statistics on throughput
-        MESSAGE_HANDLER_DECLARATION(ProcessDiskStatistics);
+        //priority for processing read chunks is higher than accepting new chunks
+        ACTOR_HANDLE
+            // this mesage is sent by the HDThreads with statistics on throughput
+            HANDLER(DiskStatistics, ProcessDiskStatistics, 2)
+            // this message is received when the top wants an operation performed
+            HANDLER(DiskOperation, DoDiskOperation, 1)
+        END_HANDLE
 };
 
 //////////////////

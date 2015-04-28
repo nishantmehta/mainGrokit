@@ -38,13 +38,12 @@ CodeLoaderImp::CodeLoaderImp(const char* _srcDir, EventProcessor& _coordinator):
 {
     coordinator.copy(_coordinator);
 
-    RegisterMessageProcessor(LoadNewCodeMessage::type, &LoadNewCode, 1
-            /* lowest priority */);
+    
 }
 
 
 // GenerateNewCode handler definition
-MESSAGE_HANDLER_DEFINITION_BEGIN(CodeLoaderImp, LoadNewCode, LoadNewCodeMessage)
+CodeLoaderImp::LoadNewCode(LoadNewCodeMessage &msg)
 {
     // get code with the current request from the message
     evProc.Load(msg.dirName, msg.configs);
@@ -52,7 +51,6 @@ MESSAGE_HANDLER_DEFINITION_BEGIN(CodeLoaderImp, LoadNewCode, LoadNewCodeMessage)
     // return the output to the sender
     LoadedCodeMessage_Factory(evProc.coordinator, msg.configs);
 }
-MESSAGE_HANDLER_DEFINITION_END
 
 
 /** Function to load extra dependencies.

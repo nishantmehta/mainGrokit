@@ -223,9 +223,6 @@ grokit\sql_close_database();
 ?>
 ;
 
-    //priority for processing read chunks is higher than accepting new chunks
-    RegisterMessageProcessor(DiskStatistics::type, &ProcessDiskStatistics, 2);
-    RegisterMessageProcessor(DiskOperation::type, &DoDiskOperation, 1);
 }
 
 void DiskArrayImp::Flush(void) {

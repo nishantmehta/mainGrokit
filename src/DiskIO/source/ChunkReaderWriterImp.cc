@@ -49,13 +49,6 @@ ChunkReaderWriterImp::ChunkReaderWriterImp(const char* _scannerName, int _numCol
     // disk jobs. Also counts how many requests we
     // processed since starting
 
-    //priority for processing read chunks is higher than accepting new chunks
-    RegisterMessageProcessor(MegaJobFinished::type, &ChunkRWJobDone, 3);
-    RegisterMessageProcessor(ChunkRead::type, &ReadChunk, 2);
-    RegisterMessageProcessor(ChunkWrite::type, &WriteChunk, 1);
-    RegisterMessageProcessor(Flush::type, &FlushFunc, 4);
-    RegisterMessageProcessor(DeleteContent::type, &DeleteContentFunc, 5);
-    RegisterMessageProcessor(ChunkClusterUpdate::type, &ClusterUpdateFunc, 6);
 }
 
 int ChunkReaderWriterImp::NewRequest(){ return ++nextRequest; }
@@ -63,7 +56,7 @@ int ChunkReaderWriterImp::NewRequest(){ return ++nextRequest; }
 ChunkReaderWriterImp::~ChunkReaderWriterImp() {
 }
 
-MESSAGE_HANDLER_DEFINITION_BEGIN(ChunkReaderWriterImp, ChunkRWJobDone, MegaJobFinished){
+ChunkReaderWriterImp::ChunkRWJobDone(MegaJobFinished &msg){
 
     // Once the job is finished, flush the metadata
     PDEBUG("MESSAGE_HANDLER_DEFINITION_BEGIN(ChunkReaderWriterImp, ChunkRWJobDone, MegaJobFinished)");
@@ -84,10 +77,10 @@ MESSAGE_HANDLER_DEFINITION_BEGIN(ChunkReaderWriterImp, ChunkRWJobDone, MegaJobFi
     // and send it
     HoppingDataMsgMessage_Factory (evProc.execEngine, req.get_chunkID(), req.get_token(), req.get_hMsg());
 
-}MESSAGE_HANDLER_DEFINITION_END
+}
 
 
-MESSAGE_HANDLER_DEFINITION_BEGIN(ChunkReaderWriterImp, ReadChunk, ChunkRead){
+ChunkReaderWriterImp::ReadChunk(ChunkRead &msg){
     off_t counter = 0;
 
     off_t _chunkId = msg.chunkID; // which chunk to read
@@ -173,7 +166,7 @@ MESSAGE_HANDLER_DEFINITION_BEGIN(ChunkReaderWriterImp, ReadChunk, ChunkRead){
     // send the job to the disk array
     DiskOperation_Factory(evProc.diskArray, requestID, READ, copy, dRequests);
 
-}MESSAGE_HANDLER_DEFINITION_END
+}
 
 /** helper function to translate raw lists to disk requests
   will be used twice for compressed and uncompressed data
@@ -198,7 +191,7 @@ static off_t RawListToDiskRequest(off_t startPage,
     return curr;
 }
 
-MESSAGE_HANDLER_DEFINITION_BEGIN(ChunkReaderWriterImp, WriteChunk, ChunkWrite){
+ChunkReaderWriterImp::WriteChunk(ChunkWrite &msg){
     off_t counter = 0;
 
     // cout << "Got request" << endl;
@@ -337,22 +330,22 @@ MESSAGE_HANDLER_DEFINITION_BEGIN(ChunkReaderWriterImp, WriteChunk, ChunkWrite){
     // send the job to the disk array
     DiskOperation_Factory(evProc.diskArray, requestID, WRITE, copy, dRequests);
 
-}MESSAGE_HANDLER_DEFINITION_END
+}
 
 
-MESSAGE_HANDLER_DEFINITION_BEGIN(ChunkReaderWriterImp, FlushFunc, Flush){
+ChunkReaderWriterImp::FlushFunc(Flush &msg){
     evProc.metadataMgr.Flush();
-}MESSAGE_HANDLER_DEFINITION_END
+}
 
-MESSAGE_HANDLER_DEFINITION_BEGIN(ChunkReaderWriterImp, DeleteContentFunc, DeleteContent) {
+ChunkReaderWriterImp::DeleteContentFunc(DeleteContent &msg){
     evProc.metadataMgr.DeleteContent();
-}MESSAGE_HANDLER_DEFINITION_END
+}
 
-MESSAGE_HANDLER_DEFINITION_BEGIN(ChunkReaderWriterImp, ClusterUpdateFunc, ChunkClusterUpdate) {
+ChunkReaderWriterImp::ClusterUpdateFunc(ChunkClusterUpdate &msg){
     ChunkID id = msg.chunkID;
     FileMetadata::ClusterRange range = msg.range;
 
     off_t chunkNum = id.GetValue();
 
     evProc.metadataMgr.updateClusterRange(chunkNum, range);
-}MESSAGE_HANDLER_DEFINITION_END
+}

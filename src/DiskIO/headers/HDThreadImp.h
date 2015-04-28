@@ -106,8 +106,12 @@ class HDThreadImp : public EventProcessorImp {
         // which stripe is this?
         int DiskNo(void);
 
-        /** Message handler for the MegaJobs (reading/writing pages that form a Chunk)*/
-        MESSAGE_HANDLER_DECLARATION(ExecuteJob)
+        void ExecuteJob(MegaJob &msg);
+        
+        ACTOR_HANDLE
+          /** Message handler for the MegaJobs (reading/writing pages that form a Chunk)*/
+          HANDLER(MegaJob, ExecuteJob, 1)
+        END_HANDLE
 
             friend class HDThread;
 };

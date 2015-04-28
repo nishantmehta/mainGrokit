@@ -86,10 +86,6 @@ ExecEngineImp :: ExecEngineImp (const std::string & _mailbox) :
     services()
 {
 
-    RegisterMessageProcessor (HoppingDataMsgMessage::type, &HoppingDataMsgReady, 1);
-    RegisterMessageProcessor (ConfigureExecEngineMessage::type, &ConfigureExecEngine, 1);
-    RegisterMessageProcessor (ServiceRequestMessage::type, &ServiceRequestMessage_H, 3);
-    RegisterMessageProcessor (ServiceControlMessage::type, &ServiceControlMessage_H, 2);
 
     // create and load up all of the CPU tokens
     for (int i = 0; i < NUM_EXEC_ENGINE_THREADS; i++) {
@@ -533,7 +529,7 @@ void ExecEngineImp :: SendDirectMsg (DirectMsg &sendMe) {
     InsertRequest (DIRECT_MESSAGE);
 }
 
-MESSAGE_HANDLER_DEFINITION_BEGIN(ExecEngineImp, ConfigureExecEngine, ConfigureExecEngineMessage) {
+ExecEngineImp::ConfigureExecEngine(ConfigureExecEngineMessage &msg) {
 
     // Run tasks first
     FOREACH_TWL(task, msg.tasks) {
@@ -590,7 +586,7 @@ MESSAGE_HANDLER_DEFINITION_BEGIN(ExecEngineImp, ConfigureExecEngine, ConfigureEx
     // at this point, we are fully configured, so we process any messages that are waiting to be delivered
     while (evProc.DeliverSomeMessage ());
 
-} MESSAGE_HANDLER_DEFINITION_END
+}
 
 extern CPUWorkerPool myCPUWorkers;
 extern CPUWorkerPool myDiskWorkers;
@@ -629,7 +625,7 @@ void ExecEngineImp :: GiveBackToken (GenericWorkToken &giveBack) {
 }
 
 
-MESSAGE_HANDLER_DEFINITION_BEGIN(ExecEngineImp, HoppingDataMsgReady, HoppingDataMsgMessage) {
+ExecEngineImp::HoppingDataMsgReady(HoppingDataMsgMessage &msg) {
 
     // first, we let the person who produced this data know that we have gotten it back
     if (evProc.myWayPoints.IsThere (msg.message.get_currentPos ())) {
@@ -670,7 +666,7 @@ MESSAGE_HANDLER_DEFINITION_BEGIN(ExecEngineImp, HoppingDataMsgReady, HoppingData
     // and then process any messages that are waiting to be delivered
     while (evProc.DeliverSomeMessage ());
 
-} MESSAGE_HANDLER_DEFINITION_END
+}
 
 
 void ExecEngineImp :: InsertRequest (int requestID) {
@@ -788,7 +784,7 @@ bool ExecEngineImp :: RemoveService( std::string& serviceID ) {
     }
 }
 
-MESSAGE_HANDLER_DEFINITION_BEGIN(ExecEngineImp, ServiceRequestMessage_H, ServiceRequestMessage) {
+ExecEngineImp::ServiceRequestMessage_H(ServiceRequestMessage &msg) {
     ServiceData& data = msg.request;
     auto it = evProc.services.find(data.get_service());
     if( it != evProc.services.end() ) {
@@ -801,9 +797,9 @@ MESSAGE_HANDLER_DEFINITION_BEGIN(ExecEngineImp, ServiceRequestMessage_H, Service
 
         evProc.SendServiceReply(errReply);
     }
-} MESSAGE_HANDLER_DEFINITION_END
+}
 
-MESSAGE_HANDLER_DEFINITION_BEGIN(ExecEngineImp, ServiceControlMessage_H, ServiceControlMessage) {
+ExecEngineImp::ServiceControlMessage_H(ServiceControlMessage &msg) {
     ServiceData& data = msg.control;
     std::string service = data.get_service();
     auto it = evProc.services.find(service);
@@ -817,7 +813,7 @@ MESSAGE_HANDLER_DEFINITION_BEGIN(ExecEngineImp, ServiceControlMessage_H, Service
 
         evProc.SendServiceReply(errReply);
     }
-} MESSAGE_HANDLER_DEFINITION_END
+}
 
 void ExecEngineImp :: SendServiceReply( ServiceData& reply ) {
     EventProcessor dest = serviceFrontend;

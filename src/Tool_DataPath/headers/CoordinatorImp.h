@@ -83,24 +83,25 @@ class CoordinatorImp : public EventProcessorImp {
         // destructor doing nothing
         virtual ~CoordinatorImp(void){ }
 
-        // MESSAGE PROCESSING METHODS
+        void DieProc(DieMessage &msg);
+        void QueryFinishedProc(QueriesDoneMessage &msg);
+        void SymbolicQueriesProc(SymbolicQueryDescriptions &msg);
+        void CodeProc(LoadedCodeMessage &msg);
+        void NewPlanProc(NewPlan &msg);
 
-        // new plan from the external planner
-        MESSAGE_HANDLER_DECLARATION(NewPlanProc);
-
-        // the query ended
-        // processes message QueryFinished
-        MESSAGE_HANDLER_DECLARATION(QueryFinishedProc);
-
-        // message to process the symbolic info from the Scheduler
-        MESSAGE_HANDLER_DECLARATION(SymbolicQueriesProc);
-
-        // message handler for the compiled code from the CodeGenerator
-        MESSAGE_HANDLER_DECLARATION(CodeProc);
-
-        // kill message; need to take everything down
-        MESSAGE_HANDLER_DECLARATION(DieProc);
-
+        ACTOR_HANDLE
+            // kill message; need to take everything down
+            HANDLER(DieMessage, DieProc, 1)
+            // the query ended
+            // processes message QueryFinished
+            HANDLER(QueriesDoneMessage, QueryFinishedProc, 1)
+            // message to process the symbolic info from the Scheduler
+            HANDLER(SymbolicQueryDescriptions, SymbolicQueriesProc, 2)
+            // message handler for the compiled code from the CodeGenerator
+            HANDLER(LoadedCodeMessage, CodeProc, 3)
+            // new plan from the external planner
+            HANDLER(NewPlan, NewPlanProc, 4)
+        END_HANDLE
 };
 
 
