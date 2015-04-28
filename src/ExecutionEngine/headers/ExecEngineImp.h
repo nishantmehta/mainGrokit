@@ -169,20 +169,24 @@ public:
     // it is unsafe to call it from any other code (race conditions)
     void Debugg(void);
 
-    // this allows one to configure the execution engine
-    MESSAGE_HANDLER_DECLARATION(ConfigureExecEngine);
+    // allows someone to give back a token without a hopping data message>> nishant
+    //MESSAGE_HANDLER_DECLARATION(GiveTokenBack);
+    void HoppingDataMsgReady(HoppingDataMsgMessage &msg);
+    void ConfigureExecEngine(ConfigureExecEngineMessage &msg);
+    void ServiceRequestMessage_H(ServiceRequestMessage &msg);
+    void ServiceControlMessage_H(ServiceControlMessage &msg);
 
-    // this allows one to inject a hopping data message into the execution egine
-    MESSAGE_HANDLER_DECLARATION(HoppingDataMsgReady);
+    ACTOR_HANDLE
+        // this allows one to inject a hopping data message into the execution egine
+        HANDLER(HoppingDataMsgMessage, HoppingDataMsgReady, 1)
+        // this allows one to configure the execution engine
+        HANDLER(ConfigureExecEngineMessage, ConfigureExecEngine, 1)
+        // allows someone to send a request to a registered service.
+        HANDLER(ServiceRequestMessage, ServiceRequestMessage_H, 3)
+        // allows someone to send a control message to a registered service.
+        HANDLER(ServiceControlMessage, ServiceControlMessage_H, 2)
+    END_HANDLE
 
-    // allows someone to give back a token without a hopping data message
-    MESSAGE_HANDLER_DECLARATION(GiveTokenBack);
-
-    // allows someone to send a request to a registered service.
-    MESSAGE_HANDLER_DECLARATION(ServiceRequestMessage_H);
-
-    // allows someone to send a control message to a registered service.
-    MESSAGE_HANDLER_DECLARATION(ServiceControlMessage_H);
 };
 
 // this is a silly little struct that is used to hold requests for resource tokens

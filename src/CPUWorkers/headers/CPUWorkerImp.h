@@ -65,9 +65,12 @@ public:
 	CPUWorkerImp ();
 	~CPUWorkerImp ();
 
-	// this handles a request to actually do some work
-	MESSAGE_HANDLER_DECLARATION(DoSomeWork);
-
+    void DoSomeWork(WorkRequestMsg &msg);
+    
+    ACTOR_HANDLE
+    	// this handles a request to actually do some work
+        HANDLER(WorkRequestMsg, DoSomeWork, 1)
+    END_HANDLE
 };
 
 /////////// INLINE METHODS ////////////

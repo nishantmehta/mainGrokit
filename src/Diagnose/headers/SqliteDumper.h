@@ -38,8 +38,11 @@ private:
 	//killMe: If set to true, kills itself.
 	void DumpToSQLite(MessageContainer& _msgContainer, bool killMe);
 
-	// message handling function for processing DumpRequest from Diagnose
-	MESSAGE_HANDLER_DECLARATION(DumpRequest);
+	void DumpRequest(DumpRequestMessage &msg);
+	ACTOR_HANDLE
+		// message handling function for processing DumpRequest from Diagnose
+        HANDLER(DumpRequestMessage, DumpRequest, 1 /*priority*/)
+    END_HANDLE
 
 	friend class SqliteDumper;
 };

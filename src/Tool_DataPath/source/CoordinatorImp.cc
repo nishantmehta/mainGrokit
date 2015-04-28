@@ -58,13 +58,6 @@ CoordinatorImp::CoordinatorImp(bool _quitWhenDone, bool batchMode, bool compileO
     codeLoader.swap(cg);
     codeLoader.ForkAndSpin();
 
-    // we register the messges since we need to receive some
-    RegisterMessageProcessor(DieMessage::type, &DieProc, 1);
-    RegisterMessageProcessor(QueriesDoneMessage::type, &QueryFinishedProc, 1);
-    RegisterMessageProcessor(SymbolicQueryDescriptions::type, &SymbolicQueriesProc, 2);
-    RegisterMessageProcessor(LoadedCodeMessage::type, &CodeProc, 3);
-    RegisterMessageProcessor(NewPlan::type, &NewPlanProc, 4);
-
     CoordinatorImp :: quitWhenDone = _quitWhenDone;
 
 }
@@ -83,8 +76,7 @@ void CoordinatorImp :: Quit() {
     Seppuku();
 }
 
-MESSAGE_HANDLER_DEFINITION_BEGIN(CoordinatorImp, SymbolicQueriesProc,
-        SymbolicQueryDescriptions){
+CoordinatorImp::SymbolicQueriesProc(SymbolicQueryDescriptions &msg) {
 
     // take over the graph
     evProc.cachedGraph.swap(msg.newGraph);
@@ -94,10 +86,10 @@ MESSAGE_HANDLER_DEFINITION_BEGIN(CoordinatorImp, SymbolicQueriesProc,
     string lastDir(evProc.lastDir);
     LoadNewCodeMessage_Factory(evProc.codeLoader, lastDir, msg.wpDesc);
 
-}MESSAGE_HANDLER_DEFINITION_END
+}
 
 
-MESSAGE_HANDLER_DEFINITION_BEGIN(CoordinatorImp, CodeProc, LoadedCodeMessage){
+CoordinatorImp::CodeProc(LoadedCodeMessage &msg) {
 
     if( evProc.compileOnly ) {
         evProc.Quit();
@@ -111,16 +103,16 @@ MESSAGE_HANDLER_DEFINITION_BEGIN(CoordinatorImp, CodeProc, LoadedCodeMessage){
     }
 
 
-}MESSAGE_HANDLER_DEFINITION_END
+}
 
 
-MESSAGE_HANDLER_DEFINITION_BEGIN(CoordinatorImp, DieProc, DieMessage){
+CoordinatorImp::DieProc(DieMessage &msg){
     cerr << "============= TAKING THE SHOW DOWN ================" << endl;
     evProc.Quit();
-}MESSAGE_HANDLER_DEFINITION_END
+}
 
 
-MESSAGE_HANDLER_DEFINITION_BEGIN(CoordinatorImp, NewPlanProc, NewPlan){
+CoordinatorImp::NewPlanProc(NewPlan &msg){
     // got an xml file. Send it to the translator
 
     // we now sent the message to the translator
@@ -134,11 +126,11 @@ MESSAGE_HANDLER_DEFINITION_BEGIN(CoordinatorImp, NewPlanProc, NewPlan){
     cout << "Got some queries started from " << buffer <<" \a\aat TIME=" << evProc.clock.GetTime() << endl;
 
 
-}MESSAGE_HANDLER_DEFINITION_END
+}
 
 
 
-MESSAGE_HANDLER_DEFINITION_BEGIN(CoordinatorImp, QueryFinishedProc, QueriesDoneMessage){
+CoordinatorImp::QueryFinishedProc(QueriesDoneMessage &msg){
     // the exec engine finished, we take the show down
 
     cout << "Got some completed queries! \a\aat TIME=" << evProc.clock.GetTime() << endl;
@@ -157,4 +149,4 @@ MESSAGE_HANDLER_DEFINITION_BEGIN(CoordinatorImp, QueryFinishedProc, QueriesDoneM
         exit(EXIT_SUCCESS);
     }
 
-}MESSAGE_HANDLER_DEFINITION_END
+}

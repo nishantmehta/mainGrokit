@@ -42,9 +42,12 @@ public:
 	WorkerImp (EventProcessor &parent, WorkerList &putHereWhenDone);
 	WorkerImp ();
 
-	// this is the message handler used to run a work unit
-	MESSAGE_HANDLER_DECLARATION(ProcessWorkUnit)
-
+	void ProcessWorkUnit(WorkToDoMessage &msg);
+	
+	ACTOR_HANDLE
+		// this is the message handler used to run a work unit
+        HANDLER(WorkToDoMessage, ProcessWorkUnit, 1)
+    END_HANDLE
 };
 
 #endif

@@ -124,8 +124,6 @@ HDThreadImp::HDThreadImp(const char *_fileName, uint64_t arrayHash, EventProcess
         perror("HDThread:");
         FATAL("Error in HDThreads(%s)\n", _fileName);
     }
-
-    RegisterMessageProcessor(MegaJob::type, &HDThreadImp::ExecuteJob, 1);
 }
 
 int HDThreadImp::DiskNo(void){
@@ -155,7 +153,7 @@ void HDThreadImp::UpdateStatistics(double time){
 
 //thread for each HD
 //the parameter is a HDThreadParam struct
-MESSAGE_HANDLER_DEFINITION_BEGIN(HDThreadImp, ExecuteJob, MegaJob){
+HDThreadImp::ExecuteJob(MegaJob &msg) {
 
     FATALIF(!msg.requestor.IsValid(), "Requestor passed in DiskArray is not valid");
 
@@ -211,4 +209,4 @@ MESSAGE_HANDLER_DEFINITION_BEGIN(HDThreadImp, ExecuteJob, MegaJob){
         // last piece, signal ChunkReaderWriter
         MegaJobFinished_Factory(msg.requestor, msg.requestId, msg.operation, msg.counter);
     }
-}MESSAGE_HANDLER_DEFINITION_END
+}

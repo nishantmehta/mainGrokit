@@ -46,13 +46,7 @@ ProfilerImp::ProfilerImp( bool suppress ): lastCpu(0), lastTick(0)
     ,EventProcessorImp(true, "Profiler")
 #endif
 {
-    RegisterMessageProcessor(ProfileMessage::type, &ProfileMessage_H, 2);
-    RegisterMessageProcessor(ProfileSetMessage::type, &ProfileSetMessage_H, 2);
-    RegisterMessageProcessor(ProfileIntervalMessage::type, &ProfileIntervalMessage_H, 2);
-    RegisterMessageProcessor(ProfileInstantMessage::type, &ProfileInstantMessage_H, 2);
-    RegisterMessageProcessor(ProfileProgressMessage::type, &ProfileProgressMessage_H, 2);
-    RegisterMessageProcessor(ProfileProgressSetMessage::type, &ProfileProgressSetMessage_H, 2);
-    RegisterMessageProcessor(PerfTopMessage::type, &PerfTopMessage_H, 2);
+
 }
 
 void ProfilerImp::PreStart(void) {
@@ -78,7 +72,7 @@ void ProfilerImp::SuppressOutput(bool v) {
 ProfilerImp :: ~ProfilerImp() {
 }
 
-MESSAGE_HANDLER_DEFINITION_BEGIN(ProfilerImp, ProfileMessage_H, ProfileMessage){
+void ProfilerImp::profileMessage_H(ProfileMessage &msg){
 
     evProc.AddCounter(msg.counter);
 
@@ -86,10 +80,10 @@ MESSAGE_HANDLER_DEFINITION_BEGIN(ProfilerImp, ProfileMessage_H, ProfileMessage){
     ProfileMessage::Factory(evProc.logger, msg);
 #endif //PROFILER_SEND_EVENTS
 
-}MESSAGE_HANDLER_DEFINITION_END
+}
 
 
-MESSAGE_HANDLER_DEFINITION_BEGIN(ProfilerImp, ProfileSetMessage_H, ProfileSetMessage){
+void ProfilerImp::profileSetMessage_H(ProfileSetMessage &msg){
 
     FOREACH_TWL(el, msg.counters){
         evProc.AddCounter(el);
@@ -99,25 +93,25 @@ MESSAGE_HANDLER_DEFINITION_BEGIN(ProfilerImp, ProfileSetMessage_H, ProfileSetMes
     ProfileSetMessage::Factory(evProc.logger, msg);
 #endif //PROFILER_SEND_EVENTS
 
-}MESSAGE_HANDLER_DEFINITION_END
+}
 
-MESSAGE_HANDLER_DEFINITION_BEGIN(ProfilerImp, ProfileInstantMessage_H, ProfileInstantMessage) {
+void ProfilerImp::profileInstantMessage_H(ProfileInstantMessage &msg) {
     evProc.AddCounter(msg.counter);
 
 #ifdef PROFILER_SEND_EVENTS
     ProfileInstantMessage::Factory(evProc.logger, msg);
 #endif //PROFILER_SEND_EVENTS
-}MESSAGE_HANDLER_DEFINITION_END
+}
 
-MESSAGE_HANDLER_DEFINITION_BEGIN(ProfilerImp, ProfileProgressMessage_H, ProfileProgressMessage) {
+void ProfilerImp::ProfileProgressMessage_H(ProfileProgressMessage &msg) {
     evProc.AddCounterProg(msg.counter);
 
 #ifdef PROFILER_SEND_EVENTS
     ProfileProgressMessage::Factory(evProc.logger, msg);
 #endif //PROFILER_SEND_EVENTS
-}MESSAGE_HANDLER_DEFINITION_END
+}
 
-MESSAGE_HANDLER_DEFINITION_BEGIN(ProfilerImp, ProfileProgressSetMessage_H, ProfileProgressSetMessage){
+void ProfilerImp::profileProgressSetMessage_H(ProfileProgressSetMessage &msg){
 
     FOREACH_TWL(el, msg.counters){
         evProc.AddCounterProg(el);
@@ -126,9 +120,9 @@ MESSAGE_HANDLER_DEFINITION_BEGIN(ProfilerImp, ProfileProgressSetMessage_H, Profi
 #ifdef PROFILER_SEND_EVENTS
     ProfileProgressSetMessage::Factory(evProc.logger, msg);
 #endif //PROFILER_SEND_EVENTS
-}MESSAGE_HANDLER_DEFINITION_END
+}
 
-MESSAGE_HANDLER_DEFINITION_BEGIN(ProfilerImp, ProfileIntervalMessage_H, ProfileIntervalMessage) {
+void ProfilerImp::profileIntervalMessage_H(ProfileIntervalMessage &msg) {
     if( ! evProc.suppressOutput )
         evProc.PrintCounters(msg.cTime, msg.wallTime);
 
@@ -162,13 +156,13 @@ MESSAGE_HANDLER_DEFINITION_BEGIN(ProfilerImp, ProfileIntervalMessage_H, ProfileI
 #ifdef MMAP_DIAG_TICK
     MMAP_DIAG;
 #endif
-} MESSAGE_HANDLER_DEFINITION_END
+} 
 
-MESSAGE_HANDLER_DEFINITION_BEGIN(ProfilerImp, PerfTopMessage_H, PerfTopMessage) {
+void ProfilerImp::perfTopMessage_H(PerfTopMessage &msg) {
     // Forward to logger
     PerfTopMessage::Factory( evProc.logger, msg.wallTime, msg.info );
 
-} MESSAGE_HANDLER_DEFINITION_END
+}
 
 void ProfilerImp::PrintCounters(const int64_t newCpuSpec, const int64_t newClockSpec){
     std::ostringstream out;

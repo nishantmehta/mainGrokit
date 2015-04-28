@@ -63,15 +63,18 @@ class TranslatorImp : public EventProcessorImp {
         // destructor doing notning
         virtual ~TranslatorImp(void){ }
 
-        // MESSAGE PROCESSING METHODS
-        // processor for the translator
-        MESSAGE_HANDLER_DECLARATION(Translate);
-        // processor for finished queries
-        MESSAGE_HANDLER_DECLARATION(DeleteQueries);
-
         // parser ; return false if failed parsing
         bool ParseFile(const char* filename);
 
+        void Translate(TranslationMessage &msg);
+        void DeleteQueries(DeleteQueriesMessage &msg);
+
+        ACTOR_HANDLE
+            // processor for the translator
+            HANDLER(TranslationMessage, Translate, 1)
+            // processor for finished queries
+            HANDLER(DeleteQueriesMessage, DeleteQueries, 2)
+        END_HANDLE
 };
 
 

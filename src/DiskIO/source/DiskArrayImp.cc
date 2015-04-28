@@ -91,18 +91,18 @@ void DiskArrayImp::PrintStatistics(void){
     cerr << "TOTAL MEMORY WRITTEN: " << (PAGES_TO_BYTES(totalPages) >> 20)  << "MB" << endl;
 }
 
-MESSAGE_HANDLER_DEFINITION_BEGIN(DiskArrayImp, ProcessDiskStatistics, DiskStatistics){
+DiskArrayImp::ProcessDiskStatistics(DiskStatistics &msg){
     // we got disk statistics from a disk. Compare it with the other
     // disks statistics and see how much lazier this disk is. If it is
     // overly lazy print warnings.
-}MESSAGE_HANDLER_DEFINITION_END
+}
 
 /** This message processes requests first in first out (modulo HDs finishing
   in the same order; small jobs might finish slightly out of order)
 
   Any controll on multiple requests has to be performed at the higher level.
   */
-MESSAGE_HANDLER_DEFINITION_BEGIN(DiskArrayImp, DoDiskOperation, DiskOperation){
+DiskArrayImp::DoDiskOperation(DiskOperation &msg){
     // create a new distributed counter to detect when all HD threads have finished
     // The receiver of the message has to destroy it
     DistributedCounter* dCounter = new DistributedCounter(evProc.meta.HDNo);
@@ -170,5 +170,5 @@ MESSAGE_HANDLER_DEFINITION_BEGIN(DiskArrayImp, DoDiskOperation, DiskOperation){
     }
 
     delete [] hdRequests;
-}MESSAGE_HANDLER_DEFINITION_END
+}
 

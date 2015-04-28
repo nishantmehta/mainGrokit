@@ -63,13 +63,11 @@ void CPUWorkerImp :: GetCopyOf (EventProcessor &myParent){
 CPUWorkerImp :: CPUWorkerImp ()
 {
 
-    // register the DoSomeWork method
-    RegisterMessageProcessor (WorkRequestMsg :: type, &DoSomeWork, 1);
 }
 
 CPUWorkerImp :: ~CPUWorkerImp () {}
 
-MESSAGE_HANDLER_DEFINITION_BEGIN(CPUWorkerImp, DoSomeWork, WorkRequestMsg) {
+CPUWorkerImp::DoSomeWork(WorkRequestMsg &msg) {
 
     // this is where the result of the computation will go
     ExecEngineData computationResult;
@@ -141,4 +139,4 @@ MESSAGE_HANDLER_DEFINITION_BEGIN(CPUWorkerImp, DoSomeWork, WorkRequestMsg) {
     HoppingDataMsgMessage_Factory (executionEngine, returnVal, msg.token, result);
 
 
-}MESSAGE_HANDLER_DEFINITION_END
+}

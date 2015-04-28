@@ -24,11 +24,9 @@ WorkerImp :: WorkerImp (EventProcessor &parent, WorkerList &putHereWhenDone) {
 	executionEngine.swap (parent);
 	repository.swap (putHereWhenDone);
 
-	// and register the ProcessWorkUnit method
-	RegisterMessageProcessor(WorkToDoMessage::type, &ProcessWorkUnit, 1);
 }
 
-MESSAGE_HANDLER_DEFINITION_BEGIN(WorkerImp, ProcessWorkUnit, WorkToDoMessage)
+WorkerImp::ProcessWorkUnit(WorkToDoMessage &msg) {
 	Timer clock;
 	clock.Restart();
 
@@ -41,5 +39,4 @@ MESSAGE_HANDLER_DEFINITION_BEGIN(WorkerImp, ProcessWorkUnit, WorkToDoMessage)
 	// send back the result
 	WorkDoneMessage_Factory (evProc.executionEngine, clock.GetTime(),
 		msg.workUnit, msg.myName);
-
-MESSAGE_HANDLER_DEFINITION_END
+}

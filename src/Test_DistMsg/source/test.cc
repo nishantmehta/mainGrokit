@@ -40,13 +40,13 @@ int TestSenderImp :: ProduceMessage(void) {
     return id < 10 ? 0 : 1;
 }
 
-MESSAGE_HANDLER_DEFINITION_BEGIN ( TestReceiverImp, ProcessTestMessage, TestMessage) {
+TestReceiverImp::ProcessTestMessage(TestMessage &msg) {
     int id = msg.id;
     auto message = msg.msg;
 
     cout << "Received: [" << id << "]: " << message.asString() << endl;
 
-} MESSAGE_HANDLER_DEFINITION_END
+}
 
 int main( void ) {
     StartLogging();

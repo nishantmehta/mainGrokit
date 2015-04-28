@@ -72,8 +72,12 @@ class CodeLoaderImp: public EventProcessorImp {
         CodeLoaderImp(const char* _srcDir, EventProcessor& _coordinator);
         virtual ~CodeLoaderImp() {}
 
-        // handler for the new message processing request
-        MESSAGE_HANDLER_DECLARATION(LoadNewCode);
+        void LoadNewCode(LoadNewCodeMessage &msg);
+
+        ACTOR_HANDLE
+            // handler for the new message processing request
+            HANDLER(LoadNewCodeMessage, LoadNewCode, 1/* lowest priority */)
+        END_HANDLE
 };
 
 #endif // _CODELOADERIMP_H

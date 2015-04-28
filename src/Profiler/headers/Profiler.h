@@ -48,13 +48,24 @@ class ProfilerImp : public EventProcessorImp {
 
     void SuppressOutput(bool v);
 
-    MESSAGE_HANDLER_DECLARATION(ProfileMessage_H);
-    MESSAGE_HANDLER_DECLARATION(ProfileSetMessage_H);
-    MESSAGE_HANDLER_DECLARATION(ProfileInstantMessage_H);
-    MESSAGE_HANDLER_DECLARATION(ProfileIntervalMessage_H);
-    MESSAGE_HANDLER_DECLARATION(ProfileProgressMessage_H);
-    MESSAGE_HANDLER_DECLARATION(ProfileProgressSetMessage_H);
-    MESSAGE_HANDLER_DECLARATION(PerfTopMessage_H);
+    void profileMessage_H(ProfileMessage &msg);
+    void profileSetMessage_H(ProfileSetMessage &msg);
+    void profileInstantMessage_H(ProfileInstantMessage &msg);
+    void ProfileProgressMessage_H(ProfileProgressMessage &msg);
+    void profileProgressSetMessage_H(ProfileProgressSetMessage &msg);
+    void profileIntervalMessage_H(ProfileIntervalMessage &msg);
+    void perfTopMessage_H(PerfTopMessage &msg);
+
+
+    ACTOR_HANDLE
+        HANDLER(ProfileMessage, profileMessage_H, 2)
+        HANDLER(ProfileSetMessage, profileSetMessage_H, 2)
+        HANDLER(ProfileIntervalMessage, profileIntervalMessage_H, 2)
+        HANDLER(ProfileInstantMessage, profileInstantMessage_H, 2)
+        HANDLER(ProfileProgressMessage, profileProgressMessage_H, 2)
+        HANDLER(ProfileProgressSetMessage, profileProgressSetMessage_H, 2)
+        HANDLER(PerfTopMessage, perfTopMessage_H, 2)
+    END_HANDLE
 };
 
 

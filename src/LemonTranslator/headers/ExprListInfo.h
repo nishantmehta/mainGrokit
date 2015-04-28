@@ -17,7 +17,6 @@
 #define _EXPR_LIST_INFO_
 
 #include <sstream>
-#include "ArgFormat.h"
 #include "json.h"
 
 #ifdef DTM_DEBUG
@@ -118,40 +117,6 @@ public:
         }
 
         return rez;
-    }
-
-    /**
-      Prepares the expression for printout generation.
-      This method modifies the types and expressions of each element as
-      necessary, using the information about the actual types and necessary
-      conversions of the arguments given by the data type manager.
-
-      During this process, constants will be pulled out. Being overly-greedy
-      about pulling out constants shouldn't be too much of an issue,
-      the compiler should get rid of any unnecessary variables.
-      */
-    void Prepare( std::string& cstStr, std::vector<ArgFormat> args = std::vector<ArgFormat>() ) {
-        for( size_t i = 0; i < list.size(); ++i ) {
-
-            if( i < args.size() ) {
-                list[i].type = args[i].getType();
-                list[i].sExpr = args[i].format(list[i].sExpr);
-            }
-
-            // This argument is constant. Create a new variable declaration in cstStr,
-            // and replace the argument expression with the name of the new constant.
-            if( list[i].isCT && ( i >= args.size() || !args[i].forceNoExtract() ) ) {
-                std::ostringstream ctName;
-                ctName << "ct" << NextVar();
-                std::ostringstream gen;
-                gen << "    ";
-                gen << "const " << list[i].type << " " << ctName.str() << " = "
-                    << list[i].sExpr << ";\n";
-
-                cstStr += gen.str();
-                list[i].sExpr = ctName.str();
-            }
-        }
     }
 };
 

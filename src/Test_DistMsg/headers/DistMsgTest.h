@@ -48,12 +48,17 @@ class TestReceiverImp : public EventProcessorImp {
     public:
         // Constructors / Destructor
         TestReceiverImp() {
-            RegisterMessageProcessor(TestMessage::type, &ProcessTestMessage);
+            
         }
 
         virtual ~TestReceiverImp() { }
 
-        MESSAGE_HANDLER_DECLARATION(ProcessTestMessage);
+        void ProcessTestMessage(TestMessage &msg);
+        
+        ACTOR_HANDLE
+            HANDLER(TestMessage, ProcessTestMessage)
+        END_HANDLE
+
 };
 
 class TestReceiver : public EventProcessor {
