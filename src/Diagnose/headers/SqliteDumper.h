@@ -40,6 +40,7 @@ private:
 	void DumpToSQLite(MessageContainer& _msgContainer, bool killMe);
 
 	void DumpRequest(DumpRequestMessage &msg);
+	
 	ACTOR_HANDLE
 		// message handling function for processing DumpRequest from Diagnose
         HANDLER(DumpRequestMessage, DumpRequest, 1 /*priority*/)

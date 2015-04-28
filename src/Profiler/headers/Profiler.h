@@ -51,7 +51,7 @@ class ProfilerImp : public EventProcessorImp {
     void profileMessage_H(ProfileMessage &msg);
     void profileSetMessage_H(ProfileSetMessage &msg);
     void profileInstantMessage_H(ProfileInstantMessage &msg);
-    void ProfileProgressMessage_H(ProfileProgressMessage &msg);
+    void profileProgressMessage_H(ProfileProgressMessage &msg);
     void profileProgressSetMessage_H(ProfileProgressSetMessage &msg);
     void profileIntervalMessage_H(ProfileIntervalMessage &msg);
     void perfTopMessage_H(PerfTopMessage &msg);
